@@ -1,13 +1,26 @@
 {
-  "name": "Plugin Template",
-  "version": "1.0.0",
-  "api_name": "plugin_template",
-  "description": "A template Kizen plugin. Use this to start building your own. Be sure to change the name and internal name.",
-  "release_branches": ["your-release-branch"],
-  "release_environments": ["dev"],
+  "name": "Hexure FireLight",
+  "version": "1.0.1",
+  "api_name": "hexure_firelight",
+  "description": "Integration with Hexure FireLight",
+  "external_link": "https://hexure.com/insurance-sales-software/",
+  "release_branches": ["main"],
+  "release_environments": ["dev", "fmo"],
   "entry": "src/",
   "engine": "1.0.0",
   "release_notes_directory": "releaseNotes/",
-  "config_template": {},
-  "base_config": {}
+  "config_template": {
+    "environment": "production"
+  },
+  "base_config": {},
+  "services": [
+    {
+      "auth_type": "no_auth",
+      "auth_level": "global",
+      "display_name": "hexure",
+      "service_name": "hexure",
+      "base_service_url": "https://www.firelighteapp.com/EGApp/api/",
+      "required_entitlement": ""
+    }
+  ]
 }
