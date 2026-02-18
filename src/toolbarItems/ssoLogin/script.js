@@ -5,13 +5,11 @@ const urlsByEnvironment = {
 };
 
 if (!this.args.environment) {
-  throw new Error('Variable "environment" missing from config');
+  return this.showToast('Variable "environment" missing from config', { variant: "failure" });
 }
 
 if (!urlsByEnvironment[this.args.environment]) {
-  throw new Error(
-    `Environment ${this.args.environment} is not a valid selection`,
-  );
+  return this.showToast(`Environment ${this.args.environment} is not a valid selection`, { variant: "failure" });
 }
 
 const res = await this.get(`/firelight-integration/auth-token-agent`);
