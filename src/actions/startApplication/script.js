@@ -698,12 +698,9 @@ const createRelatedRecordResponse = await this.post(
 );
 
 if (!createRelatedRecordResponse || !createRelatedRecordResponse.id) {
-  this.showToast(
-    "Application created, but failed to create related enrollment record",
-    {
-      variant: "failure",
-    },
-  );
+  this.showToast("Application created, but failed to create related enrollment record", {
+    variant: "failure",
+  });
 } else {
   this.showToast("Successfully Created Application and Enrollment Record", {
     variant: "success",
