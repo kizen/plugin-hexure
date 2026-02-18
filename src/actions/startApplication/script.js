@@ -195,9 +195,9 @@ const PRODUCT_NOT_FOUND_ERROR = "No product found.";
 // Firelight APIs
 const fireLightBaseUrl = authUrlsByEnvironment[this.args.environment];
 if (!this.args.environment) {
-  throw new Error(
-    "Please contact your administrator to configure your Hexure FireLight integration",
-  );
+  return this.showToast("Please contact your administrator to configure your Hexure FireLight integration", {
+    variant: "failure",
+  });
 }
 const authUrl = `${fireLightBaseUrl}/SSOGateway/TokenGateway`;
 
@@ -409,7 +409,9 @@ const productResponseData = await this.post(fetchProductByJurisdictionUrl, produ
 });
 
 if (!productResponseData?.Products) {
-  throw new Error("Failed to Fetch Products");
+  return this.showToast("Failed to Fetch Products", {
+    variant: "failure",
+  });
 }
 
 const groups = {};
@@ -581,30 +583,40 @@ if (
   createApplicationResponseData?.ActivityId === APPLICATION_ERROR_ID &&
   createApplicationResponseData?.Messages?.[0] === PRODUCT_NOT_FOUND_ERROR
 ) {
-  throw new Error("Product not found for the selected jurisdiction.");
+  return this.showToast("Product not found for the selected jurisdiction.", {
+    variant: "failure",
+  });
 } else if (
   createApplicationResponseData?.ActivityId === APPLICATION_ERROR_ID &&
   createApplicationResponseData?.Messages?.length > 0
 ) {
-  throw new Error(`${createApplicationResponseData?.Messages?.[0]}`);
+  return this.showToast(`${createApplicationResponseData?.Messages?.[0]}`, {
+    variant: "failure",
+  });
 } else if (
   !createApplicationResponseData?.ActivityId ||
   createApplicationResponseData?.ActivityId === APPLICATION_ERROR_ID
 ) {
-  throw new Error("Failed to create application: Please try again.");
+  return this.showToast("Failed to create application: Please try again.", {
+    variant: "failure",
+  });
 }
 
 // Create Related Enrollment Record
 const applicationId = createApplicationResponseData.ActivityId;
 
 if (!enrollmentObjectId) {
-  throw new Error("Could not find enrollment object to create related record");
+  return this.showToast("Could not find enrollment object to create related record", {
+    variant: "failure",
+  });
 }
 
 const enrollmentFields = await this.post(fetchKizenCustomObjectFields(enrollmentObjectId), {});
 
 if (!enrollmentFields || enrollmentFields?.length === 0) {
-  throw new Error(`Could not find enrollment field to create related record`);
+  return this.showToast("Could not find enrollment field to create related record", {
+    variant: "failure",
+  });
 }
 
 const nameField = enrollmentFields.find(({ name }) => name === "name");
