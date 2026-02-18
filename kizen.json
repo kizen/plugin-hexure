@@ -1,12 +1,14 @@
 {
   "name": "Hexure FireLight",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "published": true,
   "api_name": "hexure_firelight",
   "description": "Integration with Hexure FireLight",
   "external_link": "https://hexure.com/insurance-sales-software/",
-  "release_branches": ["main"],
-  "release_environments": ["dev", "fmo"],
+  "release_branches": [
+    "KZN-14919-error-please-contact-your-administrator-to-configure-your-hexure-fire-light-integration"
+  ],
+  "release_environments": ["dev"],
   "entry": "src/",
   "engine": "1.0.0",
   "release_notes_directory": "releaseNotes/",
