@@ -76,22 +76,10 @@ const CONTACT_FIELD_NAMES_TO_COMMON_TAGS = {
     "D_Owner_MailingAddress1",
     "D_OWNER_ADDRESS",
   ],
-  street_address_2: [
-    "D_Party1_ResidentialAddress2",
-    "D_Owner_ResidentialAddress2",
-    "D_Owner_MailingAddress2",
-  ],
-  city: [
-    "D_Party1_ResidentialAddress_City",
-    "D_Owner_ResidentialAddress_City",
-    "D_Owner_MailingAddress_City",
+  street_address_2: ["D_Party1_ResidentialAddress2", "D_Owner_ResidentialAddress2", "D_Owner_MailingAddress2"],
     "D_OWNER_CITY",
   ],
-  state: [
-    "D_Party1_ResidentialAddress_State",
-    "D_Owner_ResidentialAddress_State",
-    "D_Owner_MailingAddress_State",
-  ],
+  state: ["D_Party1_ResidentialAddress_State", "D_Owner_ResidentialAddress_State", "D_Owner_MailingAddress_State"],
   zipcode: [
     "D_Party1_ResidentialAddress_Zipcode",
     "D_Owner_ResidentialAddress_Zipcode",
@@ -105,17 +93,8 @@ const CONTACT_FIELD_NAMES_TO_COMMON_TAGS = {
     "D_OWNER_PHONE_NUMBER",
     "D_Owner_Primary_PhoneNumber",
   ],
-  business_phone: [
-    "D_Party1_Business_PhoneNumber",
-    "D_Owner_Business_PhoneNumber",
-    "D_OWNER_BUSINESS_PHONE_NUMBER",
-  ],
-  home_phone: [
-    "D_Party1_Home_PhoneNumber",
-    "D_Owner_Home_PhoneNumber",
-    "D_Owner_PhoneNumber",
-    "D_OWNER_PHONE_NUMBER",
-  ],
+  business_phone: ["D_Party1_Business_PhoneNumber", "D_Owner_Business_PhoneNumber", "D_OWNER_BUSINESS_PHONE_NUMBER"],
+  home_phone: ["D_Party1_Home_PhoneNumber", "D_Owner_Home_PhoneNumber", "D_Owner_PhoneNumber", "D_OWNER_PHONE_NUMBER"],
   medicare_number: ["D_Party1_MedicareNumber"],
   gender: ["D_Party1_Gender", "D_Owner_Gender"],
   birthday: ["D_Party1_DOB", "D_Owner_DOB", "D_OWNER_DATE_OF_BIRTH"],
@@ -203,13 +182,7 @@ const PRODUCT_TYPES = {
   fundingagreement: 122,
 };
 
-const ENROLLMENT_FIELDS_TO_POPULATE = [
-  "name",
-  "stage",
-  "enrollment_code",
-  "description",
-  "product",
-];
+const ENROLLMENT_FIELDS_TO_POPULATE = ["name", "stage", "enrollment_code", "description", "product"];
 
 const APPLICATION_ACCORD_TYPE_CODE = 103;
 const APPLICATION_ERROR_ID = "00000000-0000-0000-0000-000000000000";
@@ -239,8 +212,7 @@ const newApplicationRedirectUrl = (applicationId) =>
 const fetchFireLightAuthTokenUrl = `/firelight-integration/auth-token-agent`;
 const fetchKizenContactFieldUrl = `/client/custom-object/detail`;
 const fetchKizenCustomObject = "/custom-objects";
-const fetchKizenCustomObjectFields = (objectId = "") =>
-  `/custom-objects/${objectId}/fields/search`;
+const fetchKizenCustomObjectFields = (objectId = "") => `/custom-objects/${objectId}/fields/search`;
 const createRecordUrl = (objectId = "") => `/records/${objectId}/add`;
 const getRecordUrl = (objectId = "", recordId = "", fieldNames = "") =>
   `/records/${objectId}/${recordId}?field_names=${fieldNames}`;
@@ -265,22 +237,13 @@ const contactFieldMap = contactFieldResponse.fields.reduce((acc, curr) => {
 
 const contactRelatedEnrollmentField = contactFieldMap.enrollments;
 
-const enrollmentObjectId =
-  contactFieldMap.enrollments?.relation?.related_object;
+const enrollmentObjectId = contactFieldMap.enrollments?.relation?.related_object;
 
-const currentEnrollemntValues = contact.fields.filter(
-  ({ field }) => field === contactRelatedEnrollmentField.id,
-);
+const currentEnrollemntValues = contact.fields.filter(({ field }) => field === contactRelatedEnrollmentField.id);
 
 const enrollmentStatusFields = await Promise.all(
   currentEnrollemntValues.map(({ value }) =>
-    this.get(
-      getRecordUrl(
-        enrollmentObjectId,
-        value,
-        "stage,enrollment_code,created,product",
-      ),
-    ),
+    this.get(getRecordUrl(enrollmentObjectId, value, "stage,enrollment_code,created,product")),
   ),
 );
 
@@ -289,61 +252,54 @@ const enrollmentStatusFieldsMap = enrollmentStatusFields.reduce((acc, curr) => {
   return acc;
 }, {});
 
-const filteredEnrollmentValues = currentEnrollemntValues.reduce(
-  (acc, record) => {
-    const foundEnrollmentStatusField = enrollmentStatusFieldsMap[record.value];
-    const { stageField, enrollmentCodeField, createdField, productField } =
-      Object.values(foundEnrollmentStatusField?.fields).reduce(
-        (accumulatedFields, curr) => {
-          if (curr.name === "stage") {
-            accumulatedFields.stageField = curr;
-          } else if (curr.name === "enrollment_code") {
-            accumulatedFields.enrollmentCodeField = curr;
-          } else if (curr.name === "created") {
-            accumulatedFields.createdField = curr;
-          } else if (curr.name === "product") {
-            accumulatedFields.productField = curr;
-          }
-          return accumulatedFields;
-        },
-        {
-          stageField: {},
-          enrollmentCodeField: {},
-          createdField: {},
-          productField: {},
-        },
-      );
+const filteredEnrollmentValues = currentEnrollemntValues.reduce((acc, record) => {
+  const foundEnrollmentStatusField = enrollmentStatusFieldsMap[record.value];
+  const { stageField, enrollmentCodeField, createdField, productField } = Object.values(
+    foundEnrollmentStatusField?.fields,
+  ).reduce(
+    (accumulatedFields, curr) => {
+      if (curr.name === "stage") {
+        accumulatedFields.stageField = curr;
+      } else if (curr.name === "enrollment_code") {
+        accumulatedFields.enrollmentCodeField = curr;
+      } else if (curr.name === "created") {
+        accumulatedFields.createdField = curr;
+      } else if (curr.name === "product") {
+        accumulatedFields.productField = curr;
+      }
+      return accumulatedFields;
+    },
+    {
+      stageField: {},
+      enrollmentCodeField: {},
+      createdField: {},
+      productField: {},
+    },
+  );
 
-    if (stageField?.value?.name === "Started") {
-      const date = new Date(createdField.value);
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const year = date.getFullYear();
-      const createDateFormated = `Started ${month}/${day}/${year}`;
+  if (stageField?.value?.name === "Started") {
+    const date = new Date(createdField.value);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    const createDateFormated = `Started ${month}/${day}/${year}`;
 
-      acc.push({
-        name: `${createDateFormated ? `${createDateFormated} | ` : ""}${
-          productField?.value?.name
-            ? `${productField.value.name} Product | `
-            : ""
-        }${record.name}`,
-        value: enrollmentCodeField.value,
-      });
-    }
+    acc.push({
+      name: `${createDateFormated ? `${createDateFormated} | ` : ""}${
+        productField?.value?.name ? `${productField.value.name} Product | ` : ""
+      }${record.name}`,
+      value: enrollmentCodeField.value,
+    });
+  }
 
-    return acc;
-  },
-  [],
-);
+  return acc;
+}, []);
 
 // Prompt to resume started application
 if (filteredEnrollmentValues.length > 0) {
   let resumePromptResponse = {};
 
-  while (
-    !resumePromptResponse.eventSource &&
-    !resumePromptResponse.values?.resumeApplicationId
-  ) {
+  while (!resumePromptResponse.eventSource && !resumePromptResponse.values?.resumeApplicationId) {
     resumePromptResponse = await this.prompt({
       title: "Resume Application",
       confirmButton: {
@@ -379,10 +335,7 @@ if (filteredEnrollmentValues.length > 0) {
     });
   }
 
-  if (
-    resumePromptResponse.canceled &&
-    resumePromptResponse.eventSource === "close"
-  ) {
+  if (resumePromptResponse.canceled && resumePromptResponse.eventSource === "close") {
     return;
   } else if (resumePromptResponse.values) {
     const { resumeApplicationId } = resumePromptResponse.values;
@@ -444,16 +397,12 @@ const productsByJurisdictionRequestBody = {
   JurisdictionIds: [juridictionPromptResponseData?.values?.jurisdiction?.value],
 };
 
-const productResponseData = await this.post(
-  fetchProductByJurisdictionUrl,
-  productsByJurisdictionRequestBody,
-  {
-    headers: {
-      "X-Proxy-Authorization": `Bearer ${authResponse.access_token}`,
-      "Content-Type": "application/json",
-    },
+const productResponseData = await this.post(fetchProductByJurisdictionUrl, productsByJurisdictionRequestBody, {
+  headers: {
+    "X-Proxy-Authorization": `Bearer ${authResponse.access_token}`,
+    "Content-Type": "application/json",
   },
-);
+});
 
 if (!productResponseData?.Products) {
   throw new Error("Failed to Fetch Products");
@@ -461,11 +410,7 @@ if (!productResponseData?.Products) {
 
 const groups = {};
 
-for (const {
-  ProductName,
-  ProductOrganizationName,
-  CUSIP,
-} of productResponseData.Products) {
+for (const { ProductName, ProductOrganizationName, CUSIP } of productResponseData.Products) {
   const label = ProductName.includes(ProductOrganizationName)
     ? ProductName
     : `${ProductName} (${ProductOrganizationName})`;
@@ -530,76 +475,67 @@ const calculateAge = (birthdate) => {
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDifference = today.getMonth() - birthDate.getMonth();
 
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birthDate.getDate())
-  ) {
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
 
   return age;
 };
 
-const contactFieldsForApplication = contactFieldResponse.fields.reduce(
-  (acc, curr) => {
-    if (Object.keys(CONTACT_FIELD_NAMES_TO_COMMON_TAGS).includes(curr.name)) {
-      switch (curr.name) {
-        case "birthday":
-          const birthDayValue = contact.birthday;
-          acc[curr.name] = { value: birthDayValue };
-          acc.age = { value: calculateAge(birthDayValue) }; // for birthday we calculate age manually
+const contactFieldsForApplication = contactFieldResponse.fields.reduce((acc, curr) => {
+  if (Object.keys(CONTACT_FIELD_NAMES_TO_COMMON_TAGS).includes(curr.name)) {
+    switch (curr.name) {
+      case "birthday":
+        const birthDayValue = contact.birthday;
+        acc[curr.name] = { value: birthDayValue };
+        acc.age = { value: calculateAge(birthDayValue) }; // for birthday we calculate age manually
 
-          break;
-        case "gender":
-          const genderField = contact?.fields?.find((f) => f.field === curr.id);
-          acc[curr.name] = {
-            value:
-              GENDER_FIELD_VALUE_TO_CODE_VALUE[genderField?.name.toLowerCase()],
-          }; // apply gender code mapping
+        break;
+      case "gender":
+        const genderField = contact?.fields?.find((f) => f.field === curr.id);
+        acc[curr.name] = {
+          value: GENDER_FIELD_VALUE_TO_CODE_VALUE[genderField?.name.toLowerCase()],
+        }; // apply gender code mapping
 
-          break;
-        case "first_name":
-          acc[curr.name] = { value: contact.first_name };
-          acc.full_name = { value: contact.full_name };
+        break;
+      case "first_name":
+        acc[curr.name] = { value: contact.first_name };
+        acc.full_name = { value: contact.full_name };
 
-          break;
-        case "last_name":
-          acc[curr.name] = { value: contact.last_name };
+        break;
+      case "last_name":
+        acc[curr.name] = { value: contact.last_name };
 
-          break;
-        case "email":
-          acc[curr.name] = { value: contact.email };
+        break;
+      case "email":
+        acc[curr.name] = { value: contact.email };
 
-          break;
-        case "mobile_phone":
-          acc[curr.name] = { value: contact.mobile_phone };
+        break;
+      case "mobile_phone":
+        acc[curr.name] = { value: contact.mobile_phone };
 
-          break;
-        case "business_phone":
-          acc[curr.name] = { value: contact.business_phone };
+        break;
+      case "business_phone":
+        acc[curr.name] = { value: contact.business_phone };
 
-          break;
-        case "home_phone":
-          acc[curr.name] = { value: contact.home_phone };
+        break;
+      case "home_phone":
+        acc[curr.name] = { value: contact.home_phone };
 
-          break;
-        default:
-          const contactField = contact?.fields?.find(
-            (f) => f.field === curr.id,
-          );
+        break;
+      default:
+        const contactField = contact?.fields?.find((f) => f.field === curr.id);
 
-          acc[curr.name] = {
-            value: contactField?.value,
-            valueName: contactField?.valueName ?? contactField?.name,
-          };
+        acc[curr.name] = {
+          value: contactField?.value,
+          valueName: contactField?.valueName ?? contactField?.name,
+        };
 
-          break;
-      }
+        break;
     }
-    return acc;
-  },
-  {},
-);
+  }
+  return acc;
+}, {});
 
 const dataItems = [
   ...Object.keys(contactFieldsForApplication)
@@ -607,9 +543,7 @@ const dataItems = [
       CONTACT_FIELD_NAMES_TO_COMMON_TAGS[name].forEach((commonTag) => {
         acc.push({
           DataItemId: commonTag,
-          Value:
-            contactFieldsForApplication[name].valueName ??
-            contactFieldsForApplication[name].value,
+          Value: contactFieldsForApplication[name].valueName ?? contactFieldsForApplication[name].value,
         });
       });
       return acc;
@@ -632,16 +566,12 @@ const createApplicationRequestBody = {
   DataItems: dataItems,
 };
 
-const createApplicationResponseData = await this.post(
-  createApplicationUrl,
-  createApplicationRequestBody,
-  {
-    headers: {
-      "X-Proxy-Authorization": `Bearer ${authResponse.access_token}`,
-      "Content-Type": "application/json",
-    },
+const createApplicationResponseData = await this.post(createApplicationUrl, createApplicationRequestBody, {
+  headers: {
+    "X-Proxy-Authorization": `Bearer ${authResponse.access_token}`,
+    "Content-Type": "application/json",
   },
-);
+});
 
 if (
   createApplicationResponseData?.ActivityId === APPLICATION_ERROR_ID &&
@@ -667,10 +597,7 @@ if (!enrollmentObjectId) {
   throw new Error("Could not find enrollment object to create related record");
 }
 
-const enrollmentFields = await this.post(
-  fetchKizenCustomObjectFields(enrollmentObjectId),
-  {},
-);
+const enrollmentFields = await this.post(fetchKizenCustomObjectFields(enrollmentObjectId), {});
 
 if (!enrollmentFields || enrollmentFields?.length === 0) {
   throw new Error(`Could not find enrollment field to create related record`);
@@ -684,21 +611,16 @@ const enrollmentFieldsMap = enrollmentFields.reduce((acc, curr) => {
   };
 });
 
-const primaryApplicantFallback = enrollmentFields.find(
-  ({ name }) => name === "primary_applicant",
-);
+const primaryApplicantFallback = enrollmentFields.find(({ name }) => name === "primary_applicant");
 
 enrollmentFieldsMap["custom_name"] = {
   ...nameField,
 };
 
-const enrollmentFieldsToPopulate = ENROLLMENT_FIELDS_TO_POPULATE.map(
-  (fieldName) => {
-    const field =
-      enrollmentFieldsMap[fieldName === "name" ? "custom_name" : fieldName]; // support name field
-    return field;
-  },
-);
+const enrollmentFieldsToPopulate = ENROLLMENT_FIELDS_TO_POPULATE.map((fieldName) => {
+  const field = enrollmentFieldsMap[fieldName === "name" ? "custom_name" : fieldName]; // support name field
+  return field;
+});
 
 const fieldValues = enrollmentFields.reduce(
   (acc, field) => {
@@ -714,9 +636,7 @@ const fieldValues = enrollmentFields.reduce(
 
 const { stage: stageField, product: productField } = fieldValues;
 
-const stageValue = stageField?.options?.find(
-  ({ name }) => name === "Started",
-)?.id;
+const stageValue = stageField?.options?.find(({ name }) => name === "Started")?.id;
 
 const enrollmentProduct = productResponseData.Products.find(
   ({ CUSIP }) => CUSIP === productPromptResponseData?.values?.product?.value,
@@ -728,8 +648,7 @@ const choosenProductTypeName = Object.keys(PRODUCT_TYPES)
   .toLowerCase();
 
 const productType = productField.options.find(
-  ({ name }) =>
-    name.replace(/\s+/g, "").toLowerCase() === choosenProductTypeName,
+  ({ name }) => name.replace(/\s+/g, "").toLowerCase() === choosenProductTypeName,
 );
 
 const enrollmentValuesByFieldName = {
@@ -752,9 +671,7 @@ const createRelatedEnrollmentPayload = {
     })
     .filter((field) => Boolean(field) && field.value && field.id)
     .concat({
-      id:
-        enrollmentFieldsMap?.primary_applicant?.id ??
-        primaryApplicantFallback?.id,
+      id: enrollmentFieldsMap?.primary_applicant?.id ?? primaryApplicantFallback?.id,
       value: contact.id,
     }),
 };
