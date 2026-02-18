@@ -77,6 +77,10 @@ const CONTACT_FIELD_NAMES_TO_COMMON_TAGS = {
     "D_OWNER_ADDRESS",
   ],
   street_address_2: ["D_Party1_ResidentialAddress2", "D_Owner_ResidentialAddress2", "D_Owner_MailingAddress2"],
+  city: [
+    "D_Party1_ResidentialAddress_City",
+    "D_Owner_ResidentialAddress_City",
+    "D_Owner_MailingAddress_City",
     "D_OWNER_CITY",
   ],
   state: ["D_Party1_ResidentialAddress_State", "D_Owner_ResidentialAddress_State", "D_Owner_MailingAddress_State"],
