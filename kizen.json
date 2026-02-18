@@ -1,6 +1,6 @@
 {
   "name": "Hexure FireLight",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "published": true,
   "api_name": "hexure_firelight",
   "description": "Integration with Hexure FireLight",
