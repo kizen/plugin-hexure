@@ -5,7 +5,7 @@ const urlsByEnvironment = {
 };
 
 if (!this.args.environment) {
-  return this.showToast('Variable "environment" missing from config', { variant: "failure" });
+  return this.showToast("Variable 'environment' missing from config", { variant: "failure" });
 }
 
 if (!urlsByEnvironment[this.args.environment]) {
