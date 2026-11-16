@@ -1,9 +1,10 @@
 {
   "name": "Hexure FireLight",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "published": true,
   "api_name": "hexure_firelight",
   "description": "Integration with Hexure FireLight",
+  "categories": ["insurance"],
   "external_link": "https://hexure.com/insurance-sales-software/",
   "release_branches": ["main"],
   "release_environments": ["dev", "fmo"],
